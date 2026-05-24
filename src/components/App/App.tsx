@@ -6,6 +6,7 @@ import SearchBox from "../SearchBox/SearchBox";
 import css from "./App.module.css";
 import { fetchNotes } from "../../services/noteService";
 import Pagination from "../Pagination/Pagination";
+import Modal from "../Modal/Modal";
 
 function App() {
   const [currentPage, setcurrentPage] = useState(1);
@@ -29,6 +30,7 @@ function App() {
         <button className={css.button}>Create note +</button>
       </header>
       {data && data.notes.length && <NoteList allNotes={data.notes} />}
+      <Modal />
     </div>
   );
 }
