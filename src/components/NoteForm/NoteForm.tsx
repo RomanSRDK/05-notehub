@@ -1,6 +1,8 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import css from "./NoteForm.module.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote } from "../../services/noteService";
 
 type Tag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 interface FormValues {
@@ -9,24 +11,34 @@ interface FormValues {
   tag: Tag;
 }
 
-const initialValues: FormValues = {
-  title: "",
-  content: "",
-  tag: "Todo",
-};
+function NoteForm({ closeModal }) {
+  const queryClient = useQueryClient();
 
-const SignupSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(3, "Too Short!")
-    .max(50, "Too Long!")
-    .required("Required"),
-  content: Yup.string().max(500, "Too Long!"),
-  tag: Yup.string().required("Required"),
-});
+  const initialValues: FormValues = {
+    title: "",
+    content: "",
+    tag: "Todo",
+  };
 
-const handleSubmit = () => {};
+  const SignupSchema = Yup.object().shape({
+    title: Yup.string()
+      .min(3, "Too Short!")
+      .max(50, "Too Long!")
+      .required("Required"),
+    content: Yup.string().max(500, "Too Long!"),
+    tag: Yup.string().required("Required"),
+  });
 
-function NoteForm() {
+  const { mutate } = useMutation({
+    mutationFn: (noteData: FormValues) => createNote(noteData),
+
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
+  });
+
+  const handleSubmit = (values: FormValues) => {
+    mutate(values);
+  };
+
   return (
     <Formik
       initialValues={initialValues}
@@ -65,7 +77,11 @@ function NoteForm() {
         </div>
 
         <div className={css.actions}>
-          <button type="button" className={css.cancelButton}>
+          <button
+            type="button"
+            className={css.cancelButton}
+            onClick={closeModal}
+          >
             Cancel
           </button>
           <button type="submit" className={css.submitButton} disabled={false}>

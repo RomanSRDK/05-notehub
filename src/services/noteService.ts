@@ -15,7 +15,7 @@ interface GetNotes {
 
 export const fetchNotes = async (
   page: number,
-  perPage: number = 20,
+  perPage: number = 12,
 ): Promise<GetNotes> => {
   const { data } = await axios.get<GetNotes>(
     `/notes?page=${page}&perPage=${perPage}`,
@@ -23,5 +23,12 @@ export const fetchNotes = async (
   return data;
 };
 
-// createNote
-// deleteNote
+export const createNote = async (newNote: Note) => {
+  const res = await axios.post<Note>("/notes", newNote);
+  return res;
+};
+
+export const deleteNote = async (noteId: string): Promise<Note> => {
+  const { data } = await axios.delete<Note>(`/notes/${noteId}`);
+  return data;
+};

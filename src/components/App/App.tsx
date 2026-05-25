@@ -16,6 +16,14 @@ function App() {
     queryFn: () => fetchNotes(currentPage),
   });
 
+  //MODAL WINDOW
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+
+  const closeModal = () => setIsModalOpen(false);
+  //MODAL WINDOW
+
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
@@ -27,10 +35,12 @@ function App() {
             onPageChange={setcurrentPage}
           />
         )}
-        <button className={css.button}>Create note +</button>
+        <button className={css.button} onClick={openModal}>
+          Create note +
+        </button>
       </header>
       {data && data.notes.length && <NoteList allNotes={data.notes} />}
-      <Modal />
+      {isModalOpen && <Modal onClose={closeModal} />}
     </div>
   );
 }
