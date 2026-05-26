@@ -11,7 +11,11 @@ interface FormValues {
   tag: Tag;
 }
 
-function NoteForm({ closeModal }) {
+interface NoteFormProps {
+  onClose: () => void;
+}
+
+function NoteForm({ onClose }: NoteFormProps) {
   const queryClient = useQueryClient();
 
   const initialValues: FormValues = {
@@ -31,12 +35,12 @@ function NoteForm({ closeModal }) {
 
   const { mutate } = useMutation({
     mutationFn: (noteData: FormValues) => createNote(noteData),
-
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
   });
 
   const handleSubmit = (values: FormValues) => {
     mutate(values);
+    onClose();
   };
 
   return (
@@ -77,11 +81,7 @@ function NoteForm({ closeModal }) {
         </div>
 
         <div className={css.actions}>
-          <button
-            type="button"
-            className={css.cancelButton}
-            onClick={closeModal}
-          >
+          <button type="button" className={css.cancelButton} onClick={onClose}>
             Cancel
           </button>
           <button type="submit" className={css.submitButton} disabled={false}>

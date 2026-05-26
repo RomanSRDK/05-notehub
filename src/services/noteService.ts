@@ -8,18 +8,24 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
 interface GetNotes {
   notes: Note[];
-  currentPage: number;
   totalPages: number;
-  perPage: number;
+
+  // currentPage: number;
+  // perPage: number;
 }
 
 export const fetchNotes = async (
   page: number,
+  search: string = "",
   perPage: number = 12,
 ): Promise<GetNotes> => {
-  const { data } = await axios.get<GetNotes>(
-    `/notes?page=${page}&perPage=${perPage}`,
-  );
+  // const { data } = await axios.get<GetNotes>(
+  //   `/notes?page=${page}&perPage=${perPage}`,
+  // );
+  const { data } = await axios.get<GetNotes>("/notes", {
+    params: { page: page, perPage: perPage, search: search.trimStart() },
+  });
+  console.log(data);
   return data;
 };
 

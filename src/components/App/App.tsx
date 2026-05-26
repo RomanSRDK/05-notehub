@@ -1,33 +1,36 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
 
-import NoteList from "../NoteList/NoteList";
-import SearchBox from "../SearchBox/SearchBox";
-import css from "./App.module.css";
 import { fetchNotes } from "../../services/noteService";
+
 import Pagination from "../Pagination/Pagination";
 import Modal from "../Modal/Modal";
+import NoteList from "../NoteList/NoteList";
+import SearchBox from "../SearchBox/SearchBox";
+
+import css from "./App.module.css";
 
 function App() {
+  const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setcurrentPage] = useState(1);
+  const [debouncedSearch] = useDebounce(searchText, 300);
 
   const { data } = useQuery({
-    queryKey: ["notes", currentPage],
-    queryFn: () => fetchNotes(currentPage),
+    queryKey: ["notes", currentPage, debouncedSearch],
+    queryFn: () => fetchNotes(currentPage, debouncedSearch),
   });
 
   //MODAL WINDOW
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const openModal = () => setIsModalOpen(true);
-
   const closeModal = () => setIsModalOpen(false);
   //MODAL WINDOW
 
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox />
+        <SearchBox inputValue={searchText} onChange={setSearchText} />
         {data && data.totalPages > 1 && (
           <Pagination
             totalPages={data.totalPages}
