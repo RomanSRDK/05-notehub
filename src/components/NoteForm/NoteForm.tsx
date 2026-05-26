@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import css from "./NoteForm.module.css";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../services/noteService";
+import toast from "react-hot-toast";
 
 type Tag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 interface FormValues {
@@ -41,6 +42,17 @@ function NoteForm({ onClose }: NoteFormProps) {
   const handleSubmit = (values: FormValues) => {
     mutate(values);
     onClose();
+    toast.success("Your note has been created", {
+      style: {
+        border: "1px solid #713200",
+        padding: "16px",
+        color: "#713200",
+      },
+      iconTheme: {
+        primary: "#713200",
+        secondary: "#FFFAEE",
+      },
+    });
   };
 
   return (

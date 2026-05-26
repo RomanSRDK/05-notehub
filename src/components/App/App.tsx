@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
+import toast, { Toaster } from "react-hot-toast";
 
 import { fetchNotes } from "../../services/noteService";
 
@@ -10,17 +11,31 @@ import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
 
 import css from "./App.module.css";
+import Loader from "../Loader/Loader";
 
 function App() {
-  const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setcurrentPage] = useState(1);
-  const [debouncedSearch] = useDebounce(searchText, 300);
 
-  const { data } = useQuery({
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch] = useDebounce(searchText, 800);
+
+  const { isPending, data } = useQuery({
     queryKey: ["notes", currentPage, debouncedSearch],
     queryFn: () => fetchNotes(currentPage, debouncedSearch),
   });
+
+  useEffect(() => {
+    if (data && data.notes.length === 0) {
+      toast.error("No notes found", {
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
+    }
+  }, [data]);
 
   //MODAL WINDOW
   const openModal = () => setIsModalOpen(true);
@@ -31,6 +46,7 @@ function App() {
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox inputValue={searchText} onChange={setSearchText} />
+
         {data && data.totalPages > 1 && (
           <Pagination
             totalPages={data.totalPages}
@@ -38,11 +54,16 @@ function App() {
             onPageChange={setcurrentPage}
           />
         )}
+
         <button className={css.button} onClick={openModal}>
           Create note +
         </button>
       </header>
-      {data && data.notes.length && <NoteList allNotes={data.notes} />}
+
+      {isPending && <Loader />}
+      {data && data.notes.length > 0 && <NoteList allNotes={data.notes} />}
+      <Toaster />
+
       {isModalOpen && <Modal onClose={closeModal} />}
     </div>
   );

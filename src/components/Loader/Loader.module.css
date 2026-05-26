@@ -1,0 +1,12 @@
+.loaderBackdrop {
+  z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(31, 41, 55, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
