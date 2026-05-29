@@ -31,35 +31,40 @@ function NoteForm({ onClose }: NoteFormProps) {
       .max(50, "Too Long!")
       .required("Required"),
     content: Yup.string().max(500, "Too Long!"),
-    tag: Yup.string().required("Required"),
+    tag: Yup.string()
+      .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
+      .required("Required"),
   });
 
   const { mutate } = useMutation({
     mutationFn: (noteData: FormValues) => createNote(noteData),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
-  });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onClose();
 
-  const handleSubmit = (values: FormValues) => {
-    mutate(values);
-    onClose();
-    toast.success("Your note has been created", {
-      style: {
-        border: "1px solid #713200",
-        padding: "16px",
-        color: "#713200",
-      },
-      iconTheme: {
-        primary: "#713200",
-        secondary: "#FFFAEE",
-      },
-    });
-  };
+      toast.success("Your note has been created", {
+        style: {
+          border: "1px solid #713200",
+          padding: "16px",
+          color: "#713200",
+        },
+        iconTheme: {
+          primary: "#713200",
+          secondary: "#FFFAEE",
+        },
+      });
+    },
+    onError: () => {
+      onClose();
+      toast.error("Failed to create note");
+    },
+  });
 
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={SignupSchema}
-      onSubmit={handleSubmit}
+      onSubmit={(values: FormValues) => mutate(values)}
     >
       <Form className={css.form}>
         <div className={css.formGroup}>
